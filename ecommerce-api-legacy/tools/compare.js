@@ -1,6 +1,5 @@
 'use strict';
 
-/** Compara duas execuções do smoke e falha se algum status divergir. */
 const fs = require('fs');
 
 const indexar = (caminho) =>

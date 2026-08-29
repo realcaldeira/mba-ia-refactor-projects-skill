@@ -42,8 +42,8 @@ CRITICAL: 5 | HIGH: 8 | MEDIUM: 7 | LOW: 6
 - **File:** `src/utils.js:1-7`
 - **Evidence:**
   ```javascript
-  dbPass: "senha_super_secreta_prod_123",
-  paymentGatewayKey: "pk_live_1234567890abcdef",
+  dbPass: "<redacted>",
+  paymentGatewayKey: "<redacted>",
   ```
 - **Description:** O objeto `config` traz senha do banco de produção, chave **live** do gateway de
   pagamento e usuário de SMTP como literais no código versionado. Nenhum valor vem de variável de
@@ -146,8 +146,8 @@ CRITICAL: 5 | HIGH: 8 | MEDIUM: 7 | LOW: 6
   ```
 - **Description:** Hash caseiro que repete 10.000 vezes os dois primeiros caracteres do base64 da
   senha e trunca em 10 caracteres — é reversível por inspeção e colide para qualquer senha com o
-  mesmo prefixo. O seed grava a senha `'123'` em texto plano (linha 18) e o checkout usa
-  `badCrypto(p || "123456")` (linha 68), com senha padrão quando o campo vem vazio.
+  mesmo prefixo. O seed gravava a senha em texto plano (linha 18) e o checkout usa
+  `badCrypto(p || "<redacted>")` (linha 68), com senha padrão quando o campo vem vazio.
 - **Impact:** Senhas efetivamente sem proteção; contas criadas sem senha ficam com uma senha padrão
   conhecida. O laço de 10.000 iterações ainda bloqueia o event loop a cada cadastro.
 - **Recommendation:** `bcrypt`/`argon2` com salt e comparação em tempo constante; senha obrigatória
@@ -294,10 +294,10 @@ CRITICAL: 5 | HIGH: 8 | MEDIUM: 7 | LOW: 6
 - **Evidence:**
   ```javascript
   if (!u || !e || !cid || !cc) return res.status(400).send("Bad Request");
-  let hash = badCrypto(p || "123456");
+  let hash = badCrypto(p || "<redacted>");
   ```
 - **Description:** A validação cobre apenas presença de quatro campos: não valida formato de e-mail,
-  não valida o cartão, não exige senha (a linha 68 substitui a ausência por `"123456"`) e não
+  não valida o cartão, não exige senha (a linha 68 substitui a ausência por um fallback) e não
   converte `c_id` para número.
 - **Impact:** Contas criadas com senha padrão conhecida; e-mails inválidos entram na base e viram
   chave de identidade no achado #4.

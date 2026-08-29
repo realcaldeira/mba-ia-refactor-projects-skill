@@ -6,7 +6,7 @@ API de E-commerce em Python/Flask — **refatorada para MVC** pela skill `refact
 
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
-cp .env.example .env        # ajuste os valores; o .env não é versionado
+cp .env.example .env        # o arquivo é carregado via python-dotenv; SECRET_KEY vazio usa o default
 .venv/bin/python app.py
 ```
 
@@ -48,7 +48,9 @@ src/
 
 ## Endpoints
 
-Os 17 endpoints de negócio da versão original respondem com o mesmo método, rota e status.
+Os 17 endpoints de negócio da versão original respondem com o mesmo método, rota e status
+enquanto `AUTH_REQUIRED=false` (default). Com `AUTH_REQUIRED=true`, mutações e listagens
+sensíveis exigem `Authorization: Bearer <token>` obtido no `POST /login`.
 
 `GET /` · `GET /health` · `GET /produtos` · `GET /produtos/busca` · `GET /produtos/<id>` ·
 `POST /produtos` · `PUT /produtos/<id>` · `DELETE /produtos/<id>` · `GET /usuarios` ·

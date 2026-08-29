@@ -7,7 +7,7 @@ LMS API (cursos, matrículas e checkout) em Node.js/Express — **refatorada par
 
 ```bash
 npm install
-cp .env.example .env      # ajuste os valores; o .env não é versionado
+cp .env.example .env      # carregado no boot; SECRET_KEY vazio usa o default de desenvolvimento
 npm start
 ```
 
@@ -59,10 +59,11 @@ Os 3 endpoints originais respondem no mesmo método, rota e status:
 
 Exemplos de requisição em [`api.http`](api.http).
 
-**Mudança de comportamento deliberada** (correção de falha crítica de autenticação): no checkout,
-um e-mail já cadastrado agora exige a senha correta e responde `401` quando ela não confere. Antes,
-informar o e-mail de outra pessoa bastava para comprar em nome dela. Nenhum status do conjunto de
-testes original mudou.
+**Mudanças de comportamento deliberadas:** no checkout, um e-mail já cadastrado exige a senha
+correta (`401` se não conferir). Matrícula duplicada no mesmo curso responde `409`. Conta nova
+só é gravada depois do pagamento aprovado. `DELETE /api/users/:id` inexistente responde `404`.
+
+Com `AUTH_REQUIRED=true`, o relatório financeiro e o DELETE exigem Bearer token.
 
 ## Validando a refatoração
 

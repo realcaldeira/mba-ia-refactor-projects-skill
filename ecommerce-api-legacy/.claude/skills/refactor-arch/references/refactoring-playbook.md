@@ -16,7 +16,7 @@ Ordem recomendada: `R1` (config) → `R2`/`R4` (segurança de dados) → `R8`/`R
 **Antes**
 ```python
 # app.py
-app.config["SECRET_KEY"] = "minha-chave-super-secreta-123"
+app.config["SECRET_KEY"] = "<redacted>"
 app.config["DEBUG"] = True
 CORS(app)
 app.run(host="0.0.0.0", port=5000, debug=True)
@@ -28,7 +28,7 @@ app.run(host="0.0.0.0", port=5000, debug=True)
 import os
 
 class Settings:
-    SECRET_KEY  = os.getenv("SECRET_KEY", "dev-secret-change-me")
+    SECRET_KEY  = os.getenv("SECRET_KEY", "")
     DEBUG       = os.getenv("FLASK_DEBUG", "false").lower() == "true"
     HOST        = os.getenv("HOST", "127.0.0.1")
     PORT        = int(os.getenv("PORT", "5000"))
@@ -37,7 +37,7 @@ class Settings:
 
     @classmethod
     def validate(cls):
-        if not cls.DEBUG and cls.SECRET_KEY == "dev-secret-change-me":
+        if not cls.DEBUG and not cls.SECRET_KEY:
             raise RuntimeError("SECRET_KEY precisa ser definida fora de desenvolvimento")
 
 settings = Settings()
@@ -492,7 +492,7 @@ Acumuladores (`totalRevenue`) somem: o valor vem de `SUM()` no banco, que é a f
 class NotificationService:
     def __init__(self):
         self.email_host = 'smtp.gmail.com'      # infraestrutura fixa no construtor
-        self.email_password = 'senha123'
+        self.email_password = '<redacted>'
     def send_email(self, to, subject, body):
         server = smtplib.SMTP(self.email_host, self.email_port)
 ```

@@ -148,7 +148,7 @@
       "body": {
         "name": "Teste User",
         "email": "teste.user@email.com",
-        "password": "abcd",
+        "password": "__SEED__",
         "role": "user"
       },
       "capture": {
@@ -162,7 +162,7 @@
       "body": {
         "name": "X",
         "email": "invalido",
-        "password": "abcd"
+        "password": "__SEED__"
       }
     },
     {
@@ -172,7 +172,7 @@
       "body": {
         "name": "X",
         "email": "x2@email.com",
-        "password": "ab"
+        "password": "__SEED_SHORT__"
       }
     },
     {
@@ -182,7 +182,7 @@
       "body": {
         "name": "X",
         "email": "teste.user@email.com",
-        "password": "abcd"
+        "password": "__SEED__"
       }
     },
     {
@@ -192,7 +192,7 @@
       "body": {
         "name": "X",
         "email": "x3@email.com",
-        "password": "abcd",
+        "password": "__SEED__",
         "role": "root"
       }
     },
@@ -215,7 +215,7 @@
       "path": "/login",
       "body": {
         "email": "teste.user@email.com",
-        "password": "abcd"
+        "password": "__SEED__"
       }
     },
     {
@@ -224,7 +224,7 @@
       "path": "/login",
       "body": {
         "email": "teste.user@email.com",
-        "password": "zzzz"
+        "password": "__SEED_WRONG__"
       }
     },
     {
@@ -233,7 +233,7 @@
       "path": "/login",
       "body": {
         "email": "naoexiste@email.com",
-        "password": "abcd"
+        "password": "__SEED__"
       }
     },
     {

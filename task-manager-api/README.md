@@ -69,10 +69,10 @@ Relatórios e categorias: `GET /reports/summary` · `GET /reports/user/<id>` · 
 
 Infraestrutura: `GET /` · `GET /health`
 
-**Mudança de corpo deliberada:** o campo `password` deixou de aparecer nas respostas de
-`GET /users/<id>`, `POST /users`, `PUT /users/<id>` e `POST /login` — antes o hash da senha era
-devolvido nesses quatro endpoints. O `token` do login passou a ser assinado com HMAC-SHA256 e tem
-expiração, no lugar da string previsível `fake-jwt-token-<id>`.
+**Mudança de corpo deliberada:** o campo `password` deixou de aparecer nas respostas.
+O `token` do login é HMAC-SHA256 com expiração. `POST /users` sempre cria `role=user`
+(ignora auto-promoção). Com `AUTH_REQUIRED=true`, as rotas (exceto cadastro, login e health)
+exigem Bearer.
 
 ## Validando a refatoração
 

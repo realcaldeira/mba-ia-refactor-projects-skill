@@ -8,7 +8,7 @@
       "body": {
         "usr": "Guilherme",
         "eml": "gui@fullcycle.com.br",
-        "pwd": "senhaforte",
+        "pwd": "__SEED__",
         "c_id": 2,
         "card": "4111222233334444"
       }
@@ -20,8 +20,8 @@
       "body": {
         "usr": "Leonan",
         "eml": "leonan@fullcycle.com.br",
-        "pwd": "123",
-        "c_id": 1,
+        "pwd": "__SEED__",
+        "c_id": 2,
         "card": "4111222233334444"
       }
     },
@@ -32,7 +32,7 @@
       "body": {
         "usr": "João",
         "eml": "joao@teste.com",
-        "pwd": "123",
+        "pwd": "__SEED__",
         "c_id": 1,
         "card": "5111222233334444"
       }
@@ -52,7 +52,7 @@
       "body": {
         "usr": "X",
         "eml": "x@x.com",
-        "pwd": "1",
+        "pwd": "__SEED_SHORT__",
         "c_id": 999,
         "card": "4111222233334444"
       }

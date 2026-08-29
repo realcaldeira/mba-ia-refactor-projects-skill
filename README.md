@@ -168,10 +168,9 @@ a concatenação era numa mensagem de erro). Daí a regra do catálogo: **hit é
 literal é achado**. Sem isso, o relatório se enche de ruído.
 
 **Corrigir segurança tende a quebrar contrato.** Adicionar autenticação obrigatória mudaria o
-status de endpoints hoje públicos. A saída foi separar *construir a infraestrutura* de
-*torná-la obrigatória*: os três projetos ganharam token assinado e middleware de autenticação, e
-aplicá-los a uma rota virou uma linha — decisão de produto, registrada no relatório, não efeito
-colateral da refatoração.
+status de endpoints hoje públicos. A saída foi construir o token e o middleware, e deixá-los
+**opt-in** via `AUTH_REQUIRED=false` (default). Com `true`, as rotas sensíveis passam a exigir
+Bearer — decisão de produto, não efeito colateral silencioso da refatoração.
 
 **Nem toda mudança de corpo é regressão.** A comparação de respostas acusou diferenças nos três
 projetos. Foi preciso classificá-las: campo sensível que sumiu (`password`, `secret_key`) é o
@@ -278,24 +277,31 @@ PARIDADE OK
 ```
 
 Varredura de regressão de anti-patterns após a refatoração (as ocorrências restantes são menções
-em docstrings e falsos positivos do grep, conferidos um a um):
+em docstrings, falsos positivos do grep, ou **aceitação consciente**):
 
 ```
-SQL fora de models: 0        HTTP dentro de models: 0      segredos fora de config: 0
-estado global: 0             except genérico em controller: 0
-datetime.utcnow() real: 0    Model.query.get() legado: 0   senha em serialização: 0
+SQL fora de models: 0        HTTP dentro de models: 0      senha em serialização: 0
+datetime.utcnow() real: 0    Model.query.get() legado: 0
 ```
+
+Auth nas rotas permanece **desligada por padrão** (`AUTH_REQUIRED=false`) para não quebrar o
+contrato HTTP legado. Ligar o middleware é uma linha de configuração, não código novo. Isso
+continua sendo um HIGH do catálogo — não afirmamos “zero HIGH restante”.
 
 ### Mudanças de contrato deliberadas
 
-Três, todas documentadas no relatório do respectivo projeto:
+Documentadas no relatório do respectivo projeto ou abaixo:
 
 1. **Projeto 1** — `POST /admin/query` e `POST /admin/reset-db` removidos. O primeiro executava SQL
    arbitrário do cliente; o segundo apagava o banco sem autenticação. Ambos respondem `404` agora.
 2. **Projeto 2** — o checkout com e-mail já cadastrado passa a exigir a senha correta e responde
-   `401` quando ela não confere. Nenhum status do conjunto de testes original mudou.
+   `401` quando ela não confere. Matrícula duplicada no mesmo curso responde `409`.
 3. **Projetos 1 e 3** — campos sensíveis saíram do corpo das respostas (`password`, `secret_key`,
    `debug`, `db_path`). Os status permaneceram idênticos.
+4. **Projeto 3** — `POST /users` ignora `role` enviado pelo cliente e sempre cria `user` (bloqueia
+   auto-promoção a admin). Papel só muda com `AUTH_REQUIRED=true` e token de admin.
+5. **Os três** — autenticação obrigatória só com `AUTH_REQUIRED=true`. O default preserva o
+   contrato legado (rotas públicas + token emitido no login).
 
 ---
 

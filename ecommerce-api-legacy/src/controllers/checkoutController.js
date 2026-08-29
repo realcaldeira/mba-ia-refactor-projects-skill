@@ -1,11 +1,7 @@
 'use strict';
 
-const { DadosInvalidos, NaoAutorizado, NaoEncontrado } = require('../middlewares/errors');
+const { DadosInvalidos, NaoAutorizado, NaoEncontrado, Conflito } = require('../middlewares/errors');
 
-/**
- * Caso de uso: matricular um aluno em um curso e cobrar.
- * Orquestra models e o gateway; não contém SQL nem monta query.
- */
 class CheckoutController {
   constructor({ usuarios, cursos, matriculas, pagamentos, auditoria, gateway, cache, db, logger }) {
     this.usuarios = usuarios;
@@ -25,20 +21,18 @@ class CheckoutController {
     return { nome, email, senha, cursoId, cartao };
   }
 
-  /**
-   * Resolve a identidade do comprador.
-   * Antes, um e-mail já cadastrado bastava para comprar em nome do titular: a senha só era
-   * usada na criação. Agora, usuário existente precisa autenticar.
-   */
-  async resolverUsuario({ nome, email, senha }) {
+  async resolverComprador({ nome, email, senha, cursoId }) {
     const existente = await this.usuarios.buscarPorEmail(email);
     if (!existente) {
       if (!senha) throw new DadosInvalidos('Senha é obrigatória para criar a conta');
-      return this.usuarios.criar({ nome, email, senha });
+      return { nome, email, senha, id: null };
     }
 
     const autenticado = await this.usuarios.autenticar(email, senha || '');
     if (!autenticado) throw new NaoAutorizado('Credenciais inválidas');
+    if (await this.matriculas.jaMatriculado(autenticado.id, cursoId)) {
+      throw new Conflito('Usuário já matriculado neste curso');
+    }
     return autenticado;
   }
 
@@ -50,7 +44,7 @@ class CheckoutController {
         const curso = await this.cursos.buscarAtivoPorId(dados.cursoId);
         if (!curso) throw new NaoEncontrado('Curso não encontrado');
 
-        const usuario = await this.resolverUsuario(dados);
+        const comprador = await this.resolverComprador(dados);
 
         const autorizacao = await this.gateway.autorizar({
           cartao: dados.cartao,
@@ -58,16 +52,25 @@ class CheckoutController {
         });
         if (!autorizacao.aprovado) throw new DadosInvalidos('Pagamento recusado');
 
-        // Matrícula, pagamento e auditoria em uma unidade de trabalho.
+        let usuarioId;
         const enrollmentId = await this.db.transacao(async () => {
+          const usuario =
+            comprador.id != null
+              ? comprador
+              : await this.usuarios.criar({
+                  nome: comprador.nome,
+                  email: comprador.email,
+                  senha: comprador.senha,
+                });
+          usuarioId = usuario.id;
           const id = await this.matriculas.criar(usuario.id, curso.id);
           await this.pagamentos.registrar(id, curso.price, autorizacao.status);
           await this.auditoria.registrar(`Checkout curso ${curso.id} por ${usuario.id}`);
           return id;
         });
 
-        this.cache.set(`last_checkout_${usuario.id}`, curso.title);
-        this.logger.info('checkout concluído', { usuarioId: usuario.id, cursoId: curso.id });
+        this.cache.set(`last_checkout_${usuarioId}`, curso.title);
+        this.logger.info('checkout concluído', { usuarioId, cursoId: curso.id });
 
         return res.status(200).json({ msg: 'Sucesso', enrollment_id: enrollmentId });
       } catch (erro) {

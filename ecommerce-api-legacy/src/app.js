@@ -23,7 +23,6 @@ const { UserController } = require('./controllers/userController');
 const { registrarRotas } = require('./views/routes');
 const { criarErrorHandler, rotaNaoEncontrada } = require('./middlewares/errorHandler');
 
-/** Composition root: cria as dependências concretas e as conecta. */
 async function buildApp({ config = settings, db = null, gateway = null, logger = null } = {}) {
   validar(config);
 
@@ -56,7 +55,7 @@ async function buildApp({ config = settings, db = null, gateway = null, logger =
 
   const app = express();
   app.use(express.json());
-  registrarRotas(app, controllers);
+  registrarRotas(app, controllers, config);
   app.use(rotaNaoEncontrada);
   app.use(criarErrorHandler(log));
 

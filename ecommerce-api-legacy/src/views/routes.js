@@ -2,13 +2,16 @@
 
 const express = require('express');
 
-/** Fronteira HTTP: apenas o mapa rota → controller. Nenhuma lógica vive aqui. */
-function registrarRotas(app, { checkout, relatorio, usuario }) {
+const { settings } = require('../config/settings');
+const { requerAutenticacao } = require('../middlewares/auth');
+
+function registrarRotas(app, { checkout, relatorio, usuario }, config = settings) {
   const router = express.Router();
+  const guards = config.auth.required ? [requerAutenticacao(config.auth.secret)] : [];
 
   router.post('/checkout', checkout.handler());
-  router.get('/admin/financial-report', relatorio.financeiro());
-  router.delete('/users/:id', usuario.remover());
+  router.get('/admin/financial-report', ...guards, relatorio.financeiro());
+  router.delete('/users/:id', ...guards, usuario.remover());
 
   app.use('/api', router);
   return app;

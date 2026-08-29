@@ -48,9 +48,9 @@ CRITICAL: 3 | HIGH: 8 | MEDIUM: 10 | LOW: 6
 - **File:** `app.py:11-13`, `services/notification_service.py:7-10`
 - **Evidence:**
   ```python
-  app.config['SECRET_KEY'] = 'super-secret-key-123'
+  app.config['SECRET_KEY'] = '<redacted>'
   self.email_user = 'taskmanager@gmail.com'
-  self.email_password = 'senha123'
+  self.email_password = '<redacted>'
   ```
 - **Description:** A chave de assinatura da aplicação, a URI do banco e as credenciais completas de
   SMTP estão literais no código versionado. O projeto declara `python-dotenv` em

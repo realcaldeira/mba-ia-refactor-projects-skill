@@ -115,7 +115,7 @@
       "body": {
         "nome": "Novo User",
         "email": "novo@teste.com",
-        "senha": "segredo123"
+        "senha": "__SEED__"
       },
       "capture": {
         "uid": "dados.id"
@@ -135,7 +135,7 @@
       "path": "/login",
       "body": {
         "email": "novo@teste.com",
-        "senha": "segredo123"
+        "senha": "__SEED__"
       }
     },
     {
@@ -144,7 +144,7 @@
       "path": "/login",
       "body": {
         "email": "novo@teste.com",
-        "senha": "errada"
+        "senha": "__SEED_WRONG__"
       }
     },
     {

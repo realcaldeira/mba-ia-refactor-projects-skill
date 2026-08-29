@@ -1,5 +1,7 @@
 'use strict';
 
+const { NaoEncontrado } = require('../middlewares/errors');
+
 class UserController {
   constructor({ usuarios, logger }) {
     this.usuarios = usuarios;
@@ -10,6 +12,7 @@ class UserController {
     return async (req, res, next) => {
       try {
         const { removido, matriculasRemovidas } = await this.usuarios.remover(req.params.id);
+        if (!removido) throw new NaoEncontrado('Usuário não encontrado');
         this.logger.info('usuário removido', {
           usuarioId: req.params.id,
           removido,

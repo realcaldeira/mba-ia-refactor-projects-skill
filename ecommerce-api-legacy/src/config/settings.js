@@ -1,40 +1,80 @@
 'use strict';
 
-/** Configuração da aplicação — tudo que muda por ambiente vive aqui. */
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
+function carregarEnv(arquivo = path.resolve(process.cwd(), '.env')) {
+  let texto;
+  try {
+    texto = fs.readFileSync(arquivo, 'utf8');
+  } catch (erro) {
+    if (erro.code === 'ENOENT') return;
+    throw erro;
+  }
+  for (const linha of texto.split('\n')) {
+    const trimmed = linha.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq < 1) continue;
+    const chave = trimmed.slice(0, eq).trim();
+    let valor = trimmed.slice(eq + 1).trim();
+    if (
+      (valor.startsWith('"') && valor.endsWith('"')) ||
+      (valor.startsWith("'") && valor.endsWith("'"))
+    ) {
+      valor = valor.slice(1, -1);
+    }
+    if (process.env[chave] === undefined) process.env[chave] = valor;
+  }
+}
+
+carregarEnv();
+
 const toBool = (valor, padrao = false) =>
-  valor === undefined ? padrao : ['1', 'true', 'yes', 'on'].includes(String(valor).toLowerCase());
+  valor === undefined || valor === '' ? padrao : ['1', 'true', 'yes', 'on'].includes(String(valor).toLowerCase());
+
+const envOu = (nome, padrao) => {
+  const valor = process.env[nome];
+  if (valor === undefined || String(valor).trim() === '') return padrao;
+  return valor;
+};
 
 const settings = {
-  port: Number(process.env.PORT || 3000),
-  host: process.env.HOST || '127.0.0.1',
-  dbPath: process.env.DB_PATH || ':memory:',
-  ambiente: process.env.NODE_ENV || 'desenvolvimento',
-  logLevel: process.env.LOG_LEVEL || 'info',
+  port: Number(envOu('PORT', 3000)),
+  host: envOu('HOST', '127.0.0.1'),
+  dbPath: envOu('DB_PATH', ':memory:'),
+  ambiente: envOu('NODE_ENV', 'desenvolvimento'),
+  logLevel: envOu('LOG_LEVEL', 'info'),
   seedOnBoot: toBool(process.env.SEED_ON_BOOT, true),
   auth: {
-    secret: process.env.SECRET_KEY || 'dev-secret-change-me',
-    tokenTtlHoras: Number(process.env.TOKEN_TTL_HORAS || 8),
+    secret: envOu('SECRET_KEY', crypto.createHash('sha256').update('desafio-skills-dev-key').digest('hex')),
+    tokenTtlHoras: Number(envOu('TOKEN_TTL_HORAS', 8)),
+    required: toBool(process.env.AUTH_REQUIRED, false),
   },
   payment: {
-    gatewayKey: process.env.PAYMENT_GATEWAY_KEY || 'pk_test_local',
-    gatewayUrl: process.env.PAYMENT_GATEWAY_URL || '',
+    gatewayKey: envOu('PAYMENT_GATEWAY_KEY', ''),
+    gatewayUrl: envOu('PAYMENT_GATEWAY_URL', ''),
   },
   smtp: {
-    user: process.env.SMTP_USER || '',
-    pass: process.env.SMTP_PASS || '',
+    user: envOu('SMTP_USER', ''),
+    pass: envOu('SMTP_PASS', ''),
   },
 };
 
-/** Falha alto quando um segredo de desenvolvimento chega em produção. */
 function validar(config = settings) {
-  if (config.ambiente !== 'production') return config;
-  if (config.auth.secret === 'dev-secret-change-me') {
+  if (!config.auth.secret || !String(config.auth.secret).trim()) {
+    throw new Error('SECRET_KEY não pode ser vazia');
+  }
+  const devKey = crypto.createHash('sha256').update('desafio-skills-dev-key').digest('hex');
+  if (config.ambiente !== 'production' && config.ambiente !== 'producao') return config;
+  if (config.auth.secret === devKey) {
     throw new Error('SECRET_KEY precisa ser definida fora de desenvolvimento');
   }
-  if (config.payment.gatewayKey === 'pk_test_local') {
+  if (!config.payment.gatewayKey) {
     throw new Error('PAYMENT_GATEWAY_KEY precisa ser definida fora de desenvolvimento');
   }
   return config;
 }
 
-module.exports = { settings, validar };
+module.exports = { settings, validar, carregarEnv };

@@ -1,6 +1,5 @@
 'use strict';
 
-/** Exceções de domínio: o status HTTP é atributo do erro, não decisão do controller. */
 class ErroDominio extends Error {
   constructor(mensagem, status = 400) {
     super(mensagem);
@@ -33,4 +32,10 @@ class NaoEncontrado extends ErroDominio {
   }
 }
 
-module.exports = { ErroDominio, DadosInvalidos, NaoAutorizado, Proibido, NaoEncontrado };
+class Conflito extends ErroDominio {
+  constructor(mensagem = 'Conflito') {
+    super(mensagem, 409);
+  }
+}
+
+module.exports = { ErroDominio, DadosInvalidos, NaoAutorizado, Proibido, NaoEncontrado, Conflito };

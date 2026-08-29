@@ -1,13 +1,27 @@
 'use strict';
 
-/**
- * Harness de smoke test. Uso: node tools/smoke.js <spec.json> <saida.json>
- * `{var}` no caminho é substituído por um valor capturado de uma resposta anterior.
- */
+const crypto = require('crypto');
 const fs = require('fs');
 
+function seedPassword() {
+  const env = process.env.SEED_PASSWORD;
+  if (env && env.trim()) return env.trim();
+  return crypto.createHash('sha256').update('desafio-skills-local-seed').digest('hex').slice(0, 16);
+}
+
+function injectSeed(value, credencial) {
+  if (Array.isArray(value)) return value.map((item) => injectSeed(item, credencial));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, injectSeed(v, credencial)]));
+  }
+  if (value === '__SEED__') return credencial;
+  if (value === '__SEED_WRONG__') return `${credencial}-invalid`;
+  if (value === '__SEED_SHORT__') return 'x';
+  return value;
+}
+
 async function run(specPath, outPath) {
-  const spec = JSON.parse(fs.readFileSync(specPath, 'utf8'));
+  const spec = injectSeed(JSON.parse(fs.readFileSync(specPath, 'utf8')), seedPassword());
   const contexto = {};
   const resultados = [];
 

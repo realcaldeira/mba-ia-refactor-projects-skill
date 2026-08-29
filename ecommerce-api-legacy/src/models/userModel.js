@@ -2,7 +2,6 @@
 
 const { gerarHash, conferirHash } = require('../middlewares/crypto');
 
-/** A senha nunca aparece na serialização pública. */
 const serializar = (linha) => ({ id: linha.id, name: linha.name, email: linha.email });
 
 class UserModel {
@@ -27,17 +26,12 @@ class UserModel {
     return { id: lastID, name: nome, email };
   }
 
-  /** Devolve o usuário quando a senha confere, ou null — sem dizer qual campo falhou. */
   async autenticar(email, senha) {
     const linha = await this.buscarCredencial(email);
     if (!linha || !conferirHash(senha, linha.pass)) return null;
     return serializar(linha);
   }
 
-  /**
-   * Remove o usuário e seus dependentes em uma transação.
-   * Antes, a deleção deixava matrículas e pagamentos órfãos no banco.
-   */
   async remover(id) {
     return this.db.transacao(async () => {
       const matriculas = await this.db.all('SELECT id FROM enrollments WHERE user_id = ?', [id]);

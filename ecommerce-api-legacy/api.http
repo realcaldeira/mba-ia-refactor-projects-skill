@@ -7,7 +7,7 @@ Content-Type: application/json
 {
   "usr": "Guilherme",
   "eml": "gui@fullcycle.com.br",
-  "pwd": "senhaforte",
+  "pwd": "<seed-password>",
   "c_id": 2,
   "card": "4111222233334444"
 }
@@ -19,7 +19,7 @@ Content-Type: application/json
 {
   "usr": "João",
   "eml": "joao@teste.com",
-  "pwd": "123",
+  "pwd": "<seed-password>",
   "c_id": 1,
   "card": "5111222233334444"
 }

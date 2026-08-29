@@ -1,7 +1,5 @@
-"""Acesso a dados parametrizado. Todo model herda daqui — e ninguém mais fala com o banco."""
-
-
 class BaseModel:
+
     def __init__(self, conexao):
         self._db = conexao
 

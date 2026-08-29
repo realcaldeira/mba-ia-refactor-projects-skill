@@ -1,22 +1,17 @@
-"""Constantes de domínio — antes literais soltos, repetidos em cinco arquivos."""
-
-STATUS_PENDENTE = "pending"
-STATUS_EM_ANDAMENTO = "in_progress"
-STATUS_CONCLUIDA = "done"
-STATUS_CANCELADA = "cancelled"
+STATUS_PENDENTE = 'pending'
+STATUS_EM_ANDAMENTO = 'in_progress'
+STATUS_CONCLUIDA = 'done'
+STATUS_CANCELADA = 'cancelled'
 STATUS_VALIDOS = (STATUS_PENDENTE, STATUS_EM_ANDAMENTO, STATUS_CONCLUIDA, STATUS_CANCELADA)
 STATUS_FINAIS = (STATUS_CONCLUIDA, STATUS_CANCELADA)
-
-PAPEL_USUARIO = "user"
-PAPEL_ADMIN = "admin"
-PAPEL_GERENTE = "manager"
+PAPEL_USUARIO = 'user'
+PAPEL_ADMIN = 'admin'
+PAPEL_GERENTE = 'manager'
 PAPEIS_VALIDOS = (PAPEL_USUARIO, PAPEL_ADMIN, PAPEL_GERENTE)
-
-TITULO_MIN, TITULO_MAX = 3, 200
+TITULO_MIN, TITULO_MAX = (3, 200)
 SENHA_MIN = 4
-PRIORIDADE_MIN, PRIORIDADE_MAX = 1, 5
+PRIORIDADE_MIN, PRIORIDADE_MAX = (1, 5)
 PRIORIDADE_PADRAO = 3
-COR_PADRAO = "#000000"
-FORMATO_DATA = "%Y-%m-%d"
-
-ROTULOS_PRIORIDADE = {1: "critical", 2: "high", 3: "medium", 4: "low", 5: "minimal"}
+COR_PADRAO = '#000000'
+FORMATO_DATA = '%Y-%m-%d'
+ROTULOS_PRIORIDADE = {1: 'critical', 2: 'high', 3: 'medium', 4: 'low', 5: 'minimal'}

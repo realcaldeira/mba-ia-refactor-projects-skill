@@ -1,5 +1,6 @@
 'use strict';
 
+const { Conflito } = require('../middlewares/errors');
 const { PagamentoStatus } = require('./paymentModel');
 
 class EnrollmentModel {
@@ -7,18 +8,29 @@ class EnrollmentModel {
     this.db = db;
   }
 
-  async criar(userId, courseId) {
-    const { lastID } = await this.db.run(
-      'INSERT INTO enrollments (user_id, course_id) VALUES (?, ?)',
+  async jaMatriculado(userId, courseId) {
+    const linha = await this.db.get(
+      'SELECT id FROM enrollments WHERE user_id = ? AND course_id = ?',
       [userId, courseId]
     );
-    return lastID;
+    return Boolean(linha);
   }
 
-  /**
-   * Relatório inteiro em uma consulta.
-   * Antes: 1 query de cursos + N de matrículas + 2 por matrícula (N+1 em quatro níveis).
-   */
+  async criar(userId, courseId) {
+    try {
+      const { lastID } = await this.db.run(
+        'INSERT INTO enrollments (user_id, course_id) VALUES (?, ?)',
+        [userId, courseId]
+      );
+      return lastID;
+    } catch (erro) {
+      if (erro && (erro.code === 'SQLITE_CONSTRAINT' || String(erro.message).includes('UNIQUE'))) {
+        throw new Conflito('Usuário já matriculado neste curso');
+      }
+      throw erro;
+    }
+  }
+
   async relatorioFinanceiro() {
     return this.db.all(
       `SELECT c.id           AS course_id,
@@ -35,7 +47,6 @@ class EnrollmentModel {
   }
 }
 
-/** Agrupa as linhas do JOIN no formato de resposta esperado pelo cliente. */
 function montarRelatorio(linhas) {
   const porCurso = new Map();
 

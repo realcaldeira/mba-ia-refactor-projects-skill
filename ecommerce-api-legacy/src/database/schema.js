@@ -1,7 +1,14 @@
 'use strict';
 
+const crypto = require('crypto');
 const { PagamentoStatus } = require('../models/paymentModel');
 const { gerarHash } = require('../middlewares/crypto');
+
+function seedPassword() {
+  const env = process.env.SEED_PASSWORD;
+  if (env && env.trim()) return env.trim();
+  return crypto.createHash('sha256').update('desafio-skills-local-seed').digest('hex').slice(0, 16);
+}
 
 const DDL = [
   `CREATE TABLE IF NOT EXISTS users (
@@ -34,6 +41,7 @@ const DDL = [
    )`,
   'CREATE INDEX IF NOT EXISTS idx_enrollments_course ON enrollments(course_id)',
   'CREATE INDEX IF NOT EXISTS idx_enrollments_user ON enrollments(user_id)',
+  'CREATE UNIQUE INDEX IF NOT EXISTS idx_enrollments_user_course ON enrollments(user_id, course_id)',
   'CREATE INDEX IF NOT EXISTS idx_payments_enrollment ON payments(enrollment_id)',
 ];
 
@@ -42,7 +50,6 @@ async function criarSchema(db) {
   for (const comando of DDL) await db.run(comando);
 }
 
-/** Carga inicial. A senha entra no banco já com hash, nunca em texto plano. */
 async function semear(db) {
   const { total } = await db.get('SELECT COUNT(*) AS total FROM courses');
   if (total > 0) return false;
@@ -50,7 +57,7 @@ async function semear(db) {
   await db.run('INSERT INTO users (name, email, pass) VALUES (?, ?, ?)', [
     'Leonan',
     'leonan@fullcycle.com.br',
-    gerarHash('123'),
+    gerarHash(seedPassword()),
   ]);
   await db.run('INSERT INTO courses (title, price, active) VALUES (?, ?, 1), (?, ?, 1)', [
     'Clean Architecture',

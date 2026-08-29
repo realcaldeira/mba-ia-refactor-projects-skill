@@ -1,21 +1,14 @@
-"""Usuário: credenciais, papel e as consultas da entidade."""
 from datetime import datetime, timezone
-
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from src.database import db
 from src.middlewares.errors import Conflito
 from src.utils.constants import PAPEL_ADMIN, PAPEL_USUARIO
 
-
 def agora():
-    """Sempre com fuso: `datetime.utcnow()` é deprecated desde o Python 3.12 e devolve naive."""
     return datetime.now(timezone.utc)
 
-
 class User(db.Model):
-    __tablename__ = "users"
-
+    __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
@@ -25,21 +18,12 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=agora)
 
     def to_dict(self, incluir_contagem=False):
-        """Contrato público da entidade. A senha nunca sai daqui."""
-        dados = {
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "role": self.role,
-            "active": self.active,
-            "created_at": str(self.created_at),
-        }
+        dados = {'id': self.id, 'name': self.name, 'email': self.email, 'role': self.role, 'active': self.active, 'created_at': str(self.created_at)}
         if incluir_contagem:
-            dados["task_count"] = len(self.tasks)
+            dados['task_count'] = len(self.tasks)
         return dados
 
     def set_password(self, senha):
-        # PBKDF2 com salt por usuário, no lugar do MD5 sem salt.
         self.password = generate_password_hash(senha)
 
     def check_password(self, senha):
@@ -47,8 +31,6 @@ class User(db.Model):
 
     def is_admin(self):
         return self.role == PAPEL_ADMIN
-
-    # --- consultas da entidade: as rotas não falam com o ORM diretamente ---
 
     @classmethod
     def buscar(cls, user_id):
@@ -70,5 +52,5 @@ class User(db.Model):
     def garantir_email_livre(cls, email, ignorar_id=None):
         existente = cls.por_email(email)
         if existente and existente.id != ignorar_id:
-            raise Conflito("Email já cadastrado")
+            raise Conflito('Email já cadastrado')
         return email

@@ -5,7 +5,6 @@ const { NaoAutorizado, Proibido } = require('./errors');
 
 const b64 = (dados) => Buffer.from(dados).toString('base64url');
 
-/** Token assinado com HMAC-SHA256 e expiração — substitui identidade assumida pelo corpo. */
 function gerarToken(usuario, segredo, ttlHoras = 8) {
   const payload = b64(
     JSON.stringify({
@@ -22,6 +21,7 @@ function validarToken(token, segredo) {
   if (!payload || !assinatura) throw new NaoAutorizado('Token malformado');
 
   const esperada = crypto.createHmac('sha256', segredo).update(payload).digest('base64url');
+  if (assinatura.length !== esperada.length) throw new NaoAutorizado('Token inválido');
   if (!crypto.timingSafeEqual(Buffer.from(assinatura), Buffer.from(esperada))) {
     throw new NaoAutorizado('Token inválido');
   }

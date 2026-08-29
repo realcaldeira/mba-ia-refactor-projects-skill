@@ -1,6 +1,5 @@
 'use strict';
 
-/** Status de pagamento como constante de domínio, no lugar das strings soltas. */
 const PagamentoStatus = Object.freeze({ PAGO: 'PAID', RECUSADO: 'DENIED' });
 
 class PaymentModel {

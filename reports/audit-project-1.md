@@ -60,10 +60,10 @@ CRITICAL: 7 | HIGH: 10 | MEDIUM: 9 | LOW: 6
 - **File:** `app.py:7`
 - **Evidence:**
   ```python
-  app.config["SECRET_KEY"] = "minha-chave-super-secreta-123"
+  app.config["SECRET_KEY"] = "<redacted>"
   ```
 - **Description:** A chave de assinatura da aplicação está literal no código versionado. O mesmo
-  vale para as credenciais de usuários semeadas em `database.py:75-79` (`admin@loja.com` / `admin123`).
+  vale para as credenciais de usuários semeadas em `database.py:75-79` (`admin@loja.com` / `<redacted>`).
 - **Impact:** Qualquer pessoa com acesso ao repositório forja sessões e cookies assinados; rotacionar
   a chave exige alterar código e redeploy. As credenciais de admin do seed valem em produção.
 - **Recommendation:** Extrair para módulo de config lendo variáveis de ambiente, com `.env.example`
@@ -122,7 +122,7 @@ CRITICAL: 7 | HIGH: 10 | MEDIUM: 9 | LOW: 6
 - **Evidence:**
   ```python
   "debug": True,
-  "secret_key": "minha-chave-super-secreta-123"
+  "secret_key": "<redacted>"
   ```
 - **Description:** O endpoint de health check devolve a `SECRET_KEY`, o caminho do banco, a flag de
   debug e o ambiente declarado como `producao`.

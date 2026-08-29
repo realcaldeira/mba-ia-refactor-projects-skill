@@ -1,9 +1,5 @@
 'use strict';
 
-/**
- * Cache com limite e TTL, instanciado e injetado.
- * Substitui o objeto de módulo `globalCache`, que crescia sem limite pelo tempo de vida do processo.
- */
 class Cache {
   constructor({ maxEntradas = 500, ttlMs = 60_000 } = {}) {
     this.maxEntradas = maxEntradas;
