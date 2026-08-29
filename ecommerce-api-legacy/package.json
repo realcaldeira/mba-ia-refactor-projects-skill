@@ -1,10 +1,11 @@
 {
-  "name": "desafio-arquitetura-ia-boilerplate",
-  "version": "1.0.0",
-  "description": "Boilerplate com código legado para refatoração",
+  "name": "ecommerce-api-legacy",
+  "version": "2.0.0",
+  "description": "LMS API com fluxo de checkout, refatorada para MVC",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "smoke": "node tools/smoke.js tools/endpoints.json /tmp/smoke-depois.json"
   },
   "dependencies": {
     "express": "^4.18.2",
