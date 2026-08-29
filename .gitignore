@@ -10,3 +10,9 @@ venv/
 # SQLite
 *.db
 instance/
+
+# A skill do desafio vive em .claude/. O ignore global da máquina (**/.claude/)
+# não pode escondê-la neste repositório — desfaz o ignore só para essas pastas.
+!.claude/
+!**/.claude/
+!**/.claude/**
