@@ -68,10 +68,15 @@ Com `AUTH_REQUIRED=true`, o relatório financeiro e o DELETE exigem Bearer token
 ## Validando a refatoração
 
 ```bash
-PORT=3001 npm start &
-node tools/smoke.js tools/endpoints.json /tmp/depois.json
-node tools/compare.js /tmp/antes.json /tmp/depois.json
+npm start &
+curl -s -X POST http://127.0.0.1:3000/api/checkout \
+  -H 'Content-Type: application/json' \
+  -d '{"usr":"Bia","eml":"bia@teste.com","pwd":"senha123","c_id":1,"card":"4111222233334444"}'
+curl -s http://127.0.0.1:3000/api/admin/financial-report
 ```
+
+As requisições prontas estão em [`api.http`](api.http); o inventário completo, com os status
+esperados, na seção "Endpoints inventariados" do relatório de auditoria.
 
 ## Auditoria
 

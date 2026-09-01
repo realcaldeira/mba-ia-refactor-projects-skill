@@ -257,8 +257,8 @@ ganha valor, ao classificar a arquitetura atual antes de julgá-la.
 ### Recorte das 3 fases
 
 Não há gravação do CLI `claude` neste repositório. O recorte abaixo replica a saída da skill
-a partir dos relatórios versionados em [`reports/`](reports/) e do harness reexecutado em
-2026-09-01.
+a partir dos relatórios versionados em [`reports/`](reports/) e da validação de paridade
+executada em 2026-09-01.
 
 ```
 $ cd code-smells-project && claude "/refactor-arch"
@@ -304,7 +304,11 @@ PHASE 3  Findings resolved: 25/26
          ✓ 41/41 endpoints
 ```
 
-### Logs da validação (harness reexecutado)
+### Logs da validação
+
+Gerados pelo harness de paridade descrito em
+[`references/validation.md`](code-smells-project/.claude/skills/refactor-arch/references/validation.md),
+executado contra as três aplicações antes e depois da refatoração:
 
 ```
 ════════ PROJETO 1: code-smells-project ════════
@@ -403,44 +407,35 @@ PORT=5100 .venv/bin/python app.py
 
 ### Validando que a refatoração funciona
 
-Cada projeto traz o harness em `tools/`, com o inventário de endpoints em `tools/endpoints.json`.
-**O `base_url` do inventário é fixo e difere por projeto** — suba a aplicação exatamente na porta
-correspondente, senão o smoke devolve *connection refused*:
+O inventário de endpoints de cada projeto — método, rota e status esperado — está na seção
+**"Endpoints inventariados (contrato da Fase 3)"** do relatório correspondente em
+[`reports/`](reports/). É esse o contrato que a refatoração preserva.
 
-| Projeto | `base_url` do harness | Comando de boot |
-|---|---|---|
-| `code-smells-project` | `http://127.0.0.1:5001` | `PORT=5001 .venv/bin/python app.py` |
-| `ecommerce-api-legacy` | `http://127.0.0.1:3001` | `PORT=3001 npm start` |
-| `task-manager-api` | `http://127.0.0.1:5002` | `PORT=5002 .venv/bin/python app.py` |
+Suba a aplicação e confira que ela responde:
 
 ```bash
 # Projeto 1
-cd code-smells-project
-PORT=5001 .venv/bin/python app.py &
-.venv/bin/python tools/wait_up.py http://127.0.0.1:5001/health
-.venv/bin/python tools/smoke.py tools/endpoints.json /tmp/depois.json
-.venv/bin/python tools/compare.py /tmp/antes.json /tmp/depois.json
-
-# Projeto 3 — o seed roda antes do boot
-cd task-manager-api
-.venv/bin/python seed.py
-PORT=5002 .venv/bin/python app.py &
-.venv/bin/python tools/wait_up.py http://127.0.0.1:5002/health
-.venv/bin/python tools/smoke.py tools/endpoints.json /tmp/depois.json
-.venv/bin/python tools/compare.py /tmp/antes.json /tmp/depois.json
+cd code-smells-project && .venv/bin/python app.py &
+curl -s http://127.0.0.1:5000/health
+curl -s http://127.0.0.1:5000/produtos
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5000/produtos/9999   # 404
 
 # Projeto 2
-cd ecommerce-api-legacy
-PORT=3001 npm start &
-node tools/smoke.js tools/endpoints.json /tmp/depois.json
-node tools/compare.js /tmp/antes.json /tmp/depois.json
+cd ecommerce-api-legacy && npm start &
+curl -s -X POST http://127.0.0.1:3000/api/checkout \
+  -H 'Content-Type: application/json' \
+  -d '{"usr":"Bia","eml":"bia@teste.com","pwd":"senha123","c_id":1,"card":"4111222233334444"}'
+curl -s http://127.0.0.1:3000/api/admin/financial-report
+
+# Projeto 3 — o seed roda antes do boot; porta 5100 para não colidir com o projeto 1
+cd task-manager-api && .venv/bin/python seed.py && PORT=5100 .venv/bin/python app.py &
+curl -s http://127.0.0.1:5100/tasks
+curl -s http://127.0.0.1:5100/reports/summary
 ```
 
-`compare.py` / `compare.js` sai com código 1 se qualquer endpoint mudar de status — dá para usar
-direto em CI.
-
-Para gerar o `antes.json`, rode o mesmo harness contra a versão original
-(`git stash` ou `git checkout <commit-anterior>`).
+O projeto 2 traz as requisições prontas em [`ecommerce-api-legacy/api.http`](ecommerce-api-legacy/api.http).
+Para comparar com a versão original, rode os mesmos `curl` contra o commit anterior à refatoração
+(`git checkout 6d1ce62`) e confronte os status.
 
 ---
 

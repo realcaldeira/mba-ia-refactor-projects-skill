@@ -64,13 +64,14 @@ sensíveis exigem `Authorization: Bearer <token>` obtido no `POST /login`.
 ## Validando a refatoração
 
 ```bash
-PORT=5001 .venv/bin/python app.py &
-.venv/bin/python tools/wait_up.py http://127.0.0.1:5001/health
-.venv/bin/python tools/smoke.py tools/endpoints.json /tmp/depois.json
+.venv/bin/python app.py &
+curl -s http://127.0.0.1:5000/health
+curl -s http://127.0.0.1:5000/produtos
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5000/produtos/9999   # 404
 ```
 
-`tools/compare.py <antes.json> <depois.json>` compara duas execuções e falha se algum status
-divergir.
+O inventário completo — método, rota e status esperado — está na seção "Endpoints inventariados"
+do relatório de auditoria.
 
 ## Auditoria
 

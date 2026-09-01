@@ -77,11 +77,15 @@ exigem Bearer.
 ## Validando a refatoração
 
 ```bash
-PORT=5002 .venv/bin/python app.py &
-.venv/bin/python tools/wait_up.py http://127.0.0.1:5002/health
-.venv/bin/python tools/smoke.py tools/endpoints.json /tmp/depois.json
-.venv/bin/python tools/compare.py /tmp/antes.json /tmp/depois.json
+.venv/bin/python seed.py
+.venv/bin/python app.py &
+curl -s http://127.0.0.1:5000/tasks
+curl -s http://127.0.0.1:5000/reports/summary
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5000/tasks/9999   # 404
 ```
+
+Sem o `seed.py` o banco sobe vazio e as rotas por id respondem `404`. O inventário completo, com
+os status esperados, está na seção "Endpoints inventariados" do relatório de auditoria.
 
 ## Auditoria
 
