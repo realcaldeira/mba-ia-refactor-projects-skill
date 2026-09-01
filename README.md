@@ -441,14 +441,80 @@ Para comparar com a versão original, rode os mesmos `curl` contra o commit ante
 
 ## Estrutura do repositório
 
+Os três projetos convergiram para o mesmo desenho de camadas — `config`, `models`, `controllers`,
+`views`, `middlewares`, `services` e um composition root — apesar de linguagens e frameworks
+diferentes. É o que a skill faz de agnóstico, visto de fora.
+
 ```
 desafio-skills/
 ├── README.md
 ├── reports/
-│   ├── audit-project-1.md      32 achados — code-smells-project
-│   ├── audit-project-2.md      26 achados — ecommerce-api-legacy
-│   └── audit-project-3.md      26 achados — task-manager-api
-├── code-smells-project/        Python/Flask   — refatorado
-├── ecommerce-api-legacy/       Node/Express   — refatorado
-└── task-manager-api/           Python/Flask   — refatorado
+│   ├── audit-project-1.md              32 achados — code-smells-project
+│   ├── audit-project-2.md              26 achados — ecommerce-api-legacy
+│   └── audit-project-3.md              26 achados — task-manager-api
+│
+├── code-smells-project/                Python/Flask — API de e-commerce
+│   ├── .claude/skills/refactor-arch/
+│   │   ├── SKILL.md                    orquestrador das 3 fases
+│   │   └── references/
+│   │       ├── project-analysis.md
+│   │       ├── antipatterns-catalog.md
+│   │       ├── audit-report-template.md
+│   │       ├── mvc-architecture.md
+│   │       ├── refactoring-playbook.md
+│   │       └── validation.md
+│   ├── app.py                          entry point (chama a application factory)
+│   ├── .env.example
+│   ├── requirements.txt
+│   ├── README.md
+│   └── src/
+│       ├── app.py                      composition root (create_app)
+│       ├── config/                     settings.py · logging_config.py
+│       ├── database/                   connection.py · schema.py
+│       ├── models/                     base · produto · usuario · pedido · relatorio
+│       ├── controllers/                produto · usuario · pedido · relatorio · health
+│       ├── views/                      routes.py
+│       ├── middlewares/                errors.py · error_handler.py · auth.py
+│       └── services/                   notificador.py
+│
+├── ecommerce-api-legacy/               Node/Express — LMS com checkout
+│   ├── .claude/skills/refactor-arch/   (idêntica à do projeto 1)
+│   ├── api.http
+│   ├── .env.example
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── README.md
+│   └── src/
+│       ├── app.js                      composition root (buildApp) + entry point
+│       ├── config/                     settings.js · logger.js
+│       ├── database/                   connection.js · schema.js
+│       ├── models/                     user · course · enrollment · payment · auditLog
+│       ├── controllers/                checkout · report · user
+│       ├── views/                      routes.js
+│       ├── middlewares/                errors.js · errorHandler.js · auth.js · crypto.js
+│       └── services/                   paymentGateway.js · cache.js
+│
+└── task-manager-api/                   Python/Flask-SQLAlchemy — gerenciador de tarefas
+    ├── .claude/skills/refactor-arch/   (idêntica à do projeto 1)
+    ├── app.py                          entry point
+    ├── seed.py                         carga inicial (rodar antes do primeiro boot)
+    ├── .env.example
+    ├── requirements.txt
+    ├── README.md
+    └── src/
+        ├── app.py                      composition root (create_app)
+        ├── database.py                 instância do SQLAlchemy
+        ├── config/                     settings.py · logging_config.py
+        ├── models/                     user · task · category
+        ├── controllers/                task · user · report · category · health
+        ├── views/                      task_routes · user_routes · report_routes
+        ├── middlewares/                errors.py · error_handler.py · auth.py
+        ├── services/                   notification_service.py
+        └── utils/                      constants.py · validators.py
 ```
+
+A skill é **byte a byte igual** nos três projetos — `diff -r` entre as três cópias não acusa
+diferença. Foi o critério para considerá-la agnóstica: nada nela é específico de um projeto.
+
+Fora do versionamento (`.gitignore`): `.env`, `node_modules/`, `.venv/`, `__pycache__/`,
+`*.db` e `instance/`.
