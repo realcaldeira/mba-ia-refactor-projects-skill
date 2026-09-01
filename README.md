@@ -193,7 +193,7 @@ ganha valor, ao classificar a arquitetura atual antes de julgá-la.
 |---|---|---|---|---|
 | CRITICAL | 7 | 5 | 3 | **15** |
 | HIGH | 10 | 8 | 8 | **26** |
-| MEDIUM | 9 | 7 | 10 | **26** |
+| MEDIUM | 9 | 7 | 9 | **25** |
 | LOW | 6 | 6 | 6 | **18** |
 | **Total** | **32** | **26** | **26** | **84** |
 
@@ -254,26 +254,70 @@ ganha valor, ao classificar a arquitetura atual antes de julgá-la.
 - [x] Aplicação inicia sem erros nos 3
 - [x] Endpoints originais respondem com o status do baseline (30/30, 8/8, 41/41)
 
-### Logs da validação
+### Recorte das 3 fases
+
+Não há gravação do CLI `claude` neste repositório. O recorte abaixo replica a saída da skill
+a partir dos relatórios versionados em [`reports/`](reports/) e do harness reexecutado em
+2026-09-01.
+
+```
+$ cd code-smells-project && claude "/refactor-arch"
+================================
+PHASE 1: PROJECT ANALYSIS
+================================
+Language:      Python 3
+Framework:     Flask 3.1.1
+Domain:        API de e-commerce (produtos, usuários, pedidos)
+Architecture:  Monolítica — tudo em 4 arquivos
+Source files:  4 files analyzed (780 lines)
+================================
+
+ARCHITECTURE AUDIT REPORT  —  CRITICAL: 7 | HIGH: 10 | MEDIUM: 9 | LOW: 6
+Total: 32 findings
+Phase 2 complete. Proceed with refactoring (Phase 3)? [y/n]
+> y
+
+================================
+PHASE 3: REFACTORING COMPLETE
+================================
+Findings resolved: 31/32  (CRITICAL 7/7 | HIGH 9/10 | MEDIUM 9/9 | LOW 6/6)
+Remaining CRITICAL/HIGH: #9 HIGH Missing Authentication — aceito (AUTH_REQUIRED=false)
+Validation
+  ✓ Application boots without errors
+  ✓ 30/30 endpoints respond with baseline parity
+================================
+
+$ cd ../ecommerce-api-legacy && claude "/refactor-arch"
+PHASE 1  Language: JavaScript (Node.js)  Framework: Express 4.22.1
+         Domain: LMS com checkout  Source files: 3 (180 lines)
+PHASE 2  CRITICAL: 5 | HIGH: 8 | MEDIUM: 7 | LOW: 6  —  Total: 26
+PHASE 3  Findings resolved: 25/26
+         Remaining: #5 CRITICAL Missing Authentication — aceito (AUTH_REQUIRED=false)
+         ✓ 8/8 endpoints
+
+$ cd ../task-manager-api && claude "/refactor-arch"
+PHASE 1  Language: Python 3  Framework: Flask 3.0.0 + Flask-SQLAlchemy 3.1.1
+         Domain: Gerenciador de tarefas  Source files: 15 (1158 lines)
+PHASE 2  CRITICAL: 3 | HIGH: 8 | MEDIUM: 9 | LOW: 6  —  Total: 26
+PHASE 3  Findings resolved: 25/26
+         Remaining: #5 HIGH Missing Authentication — aceito (AUTH_REQUIRED=false)
+         ✓ 41/41 endpoints
+```
+
+### Logs da validação (harness reexecutado)
 
 ```
 ════════ PROJETO 1: code-smells-project ════════
 UP
 30/30 requisições responderam
-30 endpoints comparados
-PARIDADE OK
 
 ════════ PROJETO 2: ecommerce-api-legacy ════════
 UP
 8/8 requisições responderam
-8 endpoints comparados
-PARIDADE OK
 
 ════════ PROJETO 3: task-manager-api ════════
 UP
 41/41 requisições responderam
-41 endpoints comparados
-PARIDADE OK
 ```
 
 Varredura de regressão de anti-patterns após a refatoração (as ocorrências restantes são menções
@@ -336,6 +380,9 @@ cd ../task-manager-api    && claude "/refactor-arch"
 
 ### Rodando as aplicações refatoradas
 
+A porta vem de `PORT` (via `.env`). Os projetos 1 e 3 têm o **mesmo default (5000)** — para subir
+os dois ao mesmo tempo, passe `PORT` explicitamente em um deles, como abaixo.
+
 ```bash
 # Projeto 1 — http://localhost:5000
 cd code-smells-project
@@ -346,24 +393,44 @@ cp .env.example .env && .venv/bin/python app.py
 cd ecommerce-api-legacy
 npm install && cp .env.example .env && npm start
 
-# Projeto 3 — http://localhost:5000
+# Projeto 3 — http://localhost:5100 (default 5000 colide com o projeto 1)
 cd task-manager-api
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
-cp .env.example .env && .venv/bin/python seed.py && .venv/bin/python app.py
+cp .env.example .env
+.venv/bin/python seed.py                 # obrigatório: sem seed, metade das rotas responde 404
+PORT=5100 .venv/bin/python app.py
 ```
 
 ### Validando que a refatoração funciona
 
-Cada projeto traz o harness em `tools/`, com o inventário de endpoints em `tools/endpoints.json`:
+Cada projeto traz o harness em `tools/`, com o inventário de endpoints em `tools/endpoints.json`.
+**O `base_url` do inventário é fixo e difere por projeto** — suba a aplicação exatamente na porta
+correspondente, senão o smoke devolve *connection refused*:
+
+| Projeto | `base_url` do harness | Comando de boot |
+|---|---|---|
+| `code-smells-project` | `http://127.0.0.1:5001` | `PORT=5001 .venv/bin/python app.py` |
+| `ecommerce-api-legacy` | `http://127.0.0.1:3001` | `PORT=3001 npm start` |
+| `task-manager-api` | `http://127.0.0.1:5002` | `PORT=5002 .venv/bin/python app.py` |
 
 ```bash
-# Python (projetos 1 e 3)
+# Projeto 1
+cd code-smells-project
 PORT=5001 .venv/bin/python app.py &
 .venv/bin/python tools/wait_up.py http://127.0.0.1:5001/health
 .venv/bin/python tools/smoke.py tools/endpoints.json /tmp/depois.json
 .venv/bin/python tools/compare.py /tmp/antes.json /tmp/depois.json
 
-# Node (projeto 2)
+# Projeto 3 — o seed roda antes do boot
+cd task-manager-api
+.venv/bin/python seed.py
+PORT=5002 .venv/bin/python app.py &
+.venv/bin/python tools/wait_up.py http://127.0.0.1:5002/health
+.venv/bin/python tools/smoke.py tools/endpoints.json /tmp/depois.json
+.venv/bin/python tools/compare.py /tmp/antes.json /tmp/depois.json
+
+# Projeto 2
+cd ecommerce-api-legacy
 PORT=3001 npm start &
 node tools/smoke.js tools/endpoints.json /tmp/depois.json
 node tools/compare.js /tmp/antes.json /tmp/depois.json

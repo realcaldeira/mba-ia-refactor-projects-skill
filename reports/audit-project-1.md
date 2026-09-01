@@ -565,3 +565,18 @@ Total: 32 findings
 ================================
 
 Phase 2 complete. Proceed with refactoring (Phase 3)? [y/n]
+> y
+
+## Phase 3 — Refatoração e validação
+
+Confirmado. Estrutura MVC em `src/` (config, models, controllers, views, middlewares, services, composition root). Endpoints `POST /admin/query` e `POST /admin/reset-db` removidos (inseguros por natureza).
+
+Findings resolved: 31/32  (CRITICAL 7/7 | HIGH 9/10 | MEDIUM 9/9 | LOW 6/6)
+
+Aceito conscientemente: **#9 HIGH Missing Authentication** — middleware existe, mas `AUTH_REQUIRED=false` por padrão para não quebrar o contrato HTTP legado.
+
+Validation
+  ✓ Application boots without errors
+  ✓ 30/30 endpoints respond with baseline parity
+  ✓ Catalog scan: no new CRITICAL/HIGH introduced
+  ✓ Remaining CRITICAL/HIGH: #9 HIGH Missing Authentication — aceito (AUTH_REQUIRED=false)

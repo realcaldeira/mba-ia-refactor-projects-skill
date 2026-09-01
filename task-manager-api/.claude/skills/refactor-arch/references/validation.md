@@ -132,7 +132,9 @@ grep -rn "global \|check_same_thread" src/
 grep -rnE "\+ *str\(|f\"SELECT|\" *\+ *[a-z_]+ *\+" src/  # concatenação em SQL
 ```
 
-Nenhum CRITICAL/HIGH pode sobreviver, e nenhum novo pode ter sido introduzido.
+Nenhum CRITICAL/HIGH **novo** pode ter sido introduzido. Achados antigos dessas severidades
+só podem restar se forem listados no resumo da Fase 3 como *aceitação consciente*, com
+justificativa. Sem essa lista, não declare a varredura como limpa.
 
 ## Passo 4 — Testes do projeto
 
@@ -149,6 +151,7 @@ não ter sido feita.
 Validation
   ✓ Application boots without errors        (python src/app.py → UP em 1.2s)
   ✓ 30/30 endpoints respond with baseline parity
-  ✓ Zero CRITICAL/HIGH anti-patterns remaining  (varredura do catálogo)
+  ✓ Catalog scan: no new CRITICAL/HIGH introduced
+  ✓ Remaining CRITICAL/HIGH: #9 HIGH Missing Authentication — aceito: AUTH_REQUIRED=false preserva o contrato HTTP legado
   ✗ Suíte de testes: projeto não possui testes automatizados
 ```

@@ -122,12 +122,14 @@ Só começa após a confirmação explícita.
    composition root. Aplique um padrão do playbook por vez.
 4. Elimine os achados da Fase 2 — cada CRITICAL e HIGH precisa ter tratamento. Um achado que você
    decidir não corrigir tem de aparecer como *aceito conscientemente* no resumo, com justificativa.
+   **Nunca** imprima `Zero CRITICAL/HIGH remaining` se algum achado dessas severidades restar.
 5. Remova os arquivos legados que foram substituídos (não deixe o código antigo órfão ao lado do
    novo) e atualize `README.md`/scripts de execução do projeto para o novo entry point.
 6. **Valide** conforme `references/validation.md`:
    - a aplicação sobe sem erro;
    - todos os endpoints do inventário respondem com o mesmo status do baseline;
-   - uma nova varredura do catálogo não encontra mais nenhum CRITICAL/HIGH introduzido;
+   - uma nova varredura do catálogo não encontra nenhum CRITICAL/HIGH *introduzido*;
+   - CRITICAL/HIGH que restarem só são aceitos se listados com justificativa;
    - se o projeto tem testes, eles continuam passando.
 7. Imprima o resumo final:
 
@@ -143,7 +145,10 @@ Findings resolved: <N>/<total>  (CRITICAL <n>/<n> | HIGH <n>/<n> | MEDIUM <n>/<n
 Validation
   ✓ Application boots without errors
   ✓ <N>/<N> endpoints respond with baseline parity
-  ✓ Zero CRITICAL/HIGH anti-patterns remaining
+  ✓ Catalog scan: no new CRITICAL/HIGH introduced
+  ✓ Remaining CRITICAL/HIGH: none
+     — ou, se houver aceitação consciente:
+  ✓ Remaining CRITICAL/HIGH: #<id> <severidade> <nome> — aceito: <justificativa>
 ================================
 ```
 
