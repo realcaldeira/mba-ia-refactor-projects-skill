@@ -16,7 +16,8 @@ cp .env.example .env      # ajuste os valores; o .env não é versionado
 .venv/bin/python app.py
 ```
 
-A aplicação sobe em `http://localhost:5000` (configurável por `HOST`/`PORT`).
+A aplicação sobe em `http://localhost:5000` (configurável por `HOST`/`PORT`). O default é o
+mesmo do `code-smells-project` — com os dois rodando ao mesmo tempo, use `PORT=5100` aqui.
 
 ## Estrutura
 

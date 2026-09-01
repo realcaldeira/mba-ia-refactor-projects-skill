@@ -48,7 +48,7 @@ src/
 
 ## Endpoints
 
-Os 17 endpoints de negócio da versão original respondem com o mesmo método, rota e status
+Os 17 endpoints originais respondem com o mesmo método, rota e status
 enquanto `AUTH_REQUIRED=false` (default). Com `AUTH_REQUIRED=true`, mutações e listagens
 sensíveis exigem `Authorization: Bearer <token>` obtido no `POST /login`.
 
