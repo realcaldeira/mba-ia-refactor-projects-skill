@@ -117,7 +117,7 @@ CRITICAL: 3 | HIGH: 8 | MEDIUM: 9 | LOW: 6
 - **Impact:** Qualquer hash MD5 de senha comum é revertido por consulta a tabela pública. Como o hash
   ainda é devolvido na resposta (achado #2), a senha real do usuário é obtida sem sequer acessar o
   banco.
-- **Recommendation:** `werkzeug.security.generate_password_hash`/`check_password_hash` (PBKDF2 com
+- **Recommendation:** `werkzeug.security.generate_password_hash`/`check_password_hash` (scrypt com
   salt) e mínimo de senha maior (playbook: `R4`).
 
 ### #5 [HIGH] Missing Authentication / Authorization

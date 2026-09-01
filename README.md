@@ -13,7 +13,7 @@ superfície HTTP            relatório de severidades                de endpoint
 Aplicada aos três projetos legados deste repositório: **84 achados** catalogados, **três
 refatorações** para MVC e **79 casos de teste HTTP** com paridade de contrato preservada.
 
-| Projeto | Stack | Achados | Endpoints | Validação |
+| Projeto | Stack | Achados | Endpoints | Requisições validadas |
 |---|---|---|---|---|
 | [code-smells-project](code-smells-project/) | Python + Flask 3.1.1 | 32 (7 CRITICAL) | 17 preservados, 2 removidos | 30/30 ✓ |
 | [ecommerce-api-legacy](ecommerce-api-legacy/) | Node.js + Express 4 | 26 (5 CRITICAL) | 3 preservados | 8/8 ✓ |
@@ -106,7 +106,7 @@ de domínio está nos arquivos de referência, carregados sob demanda na fase qu
 
 ### Decisões de design
 
-**Separar o prompt do conhecimento.** Um `SKILL.md` de 167 linhas que carrega referências
+**Separar o prompt do conhecimento.** Um `SKILL.md` de 172 linhas que carrega referências
 específicas por fase custa menos contexto e é mais fácil de evoluir do que um arquivo monolítico:
 ajustar a detecção de um anti-pattern mexe só no catálogo.
 
@@ -163,9 +163,11 @@ por ser o modo de falha vizinho do que apareceu:
 ### Desafios encontrados
 
 **O grep encontra, o grep também engana.** A varredura de regressão acusou "concatenação em SQL"
-no projeto 1 e "console.log" no 2 — os dois eram falsos positivos (`Blueprint(` contém `print(`;
-a concatenação era numa mensagem de erro). Daí a regra do catálogo: **hit é hipótese, evidência
-literal é achado**. Sem isso, o relatório se enche de ruído.
+no projeto 1, `print` no projeto 3 e `console.log` no 2 — nenhum dos três era achado. A
+concatenação era numa mensagem de erro; `Blueprint(` contém a substring `print(`; e o único
+`console` do projeto 2 está dentro do logger centralizado, que é justamente a correção. Daí a
+regra do catálogo: **hit é hipótese, evidência literal é achado**. Sem isso, o relatório se
+enche de ruído.
 
 **Corrigir segurança tende a quebrar contrato.** Adicionar autenticação obrigatória mudaria o
 status de endpoints hoje públicos. A saída foi construir o token e o middleware, e deixá-los
@@ -201,22 +203,22 @@ ganha valor, ao classificar a arquitetura atual antes de julgá-la.
 
 | | Antes | Depois |
 |---|---|---|
-| **Projeto 1** | 4 arquivos, 780 linhas, sem camadas | 24 módulos em 7 camadas |
+| **Projeto 1** | 4 arquivos, 780 linhas, sem camadas | 20 módulos em 7 camadas |
 | | 18 queries por concatenação | 0 — todas parametrizadas |
-| | senha em texto plano; senha e `SECRET_KEY` na resposta | PBKDF2 com salt; serialização com allowlist |
+| | senha em texto plano; senha e `SECRET_KEY` na resposta | scrypt com salt; serialização com allowlist |
 | | `GET /pedidos` com 401 queries (100 pedidos) | 1 query com `LEFT JOIN` |
 | | relatório com 5 varreduras | 1 varredura agregada |
 | | 16 blocos `try/except` repetidos | 1 error handler central |
 | | conexão global com `check_same_thread=False` | factory injetada pelo composition root |
 | **Projeto 2** | 1 God Class de 141 linhas | 20 módulos em 7 camadas |
-| | 5 níveis de callback com contador manual | `async/await` + `Promise.all` |
+| | 5 níveis de callback com contador manual | `async/await`, sem callback aninhado |
 | | relatório com 10.051 queries (50 cursos) | 1 query com `JOIN` |
 | | e-mail conhecido = identidade assumida | senha verificada; `401` sem ela |
 | | PAN e chave live no log | `**** **** **** 4444` |
 | | deleção deixava órfãos (documentado na resposta) | transação removendo dependentes |
 | **Projeto 3** | 733 linhas de rota fazendo 4 papéis | camada de controller introduzida |
 | | `password` em 4 respostas | 0 |
-| | MD5 sem salt | PBKDF2 com salt |
+| | MD5 sem salt | scrypt com salt |
 | | `fake-jwt-token-<id>` | HMAC-SHA256 com expiração |
 | | 17 `datetime.utcnow()` + 30 `Model.query` | APIs atuais (Python 3.12+, SQLAlchemy 2.x) |
 | | regra de "atrasada" em 7 lugares | `Task.is_overdue()` |
@@ -252,7 +254,7 @@ ganha valor, ao classificar a arquitetura atual antes de julgá-la.
 - [x] Error handling centralizado nos 3
 - [x] Entry point claro com application factory
 - [x] Aplicação inicia sem erros nos 3
-- [x] Endpoints originais respondem com o status do baseline (30/30, 8/8, 41/41)
+- [x] Endpoints originais respondem com o status do baseline (79 requisições: 30 + 8 + 41)
 
 ### Recorte das 3 fases
 

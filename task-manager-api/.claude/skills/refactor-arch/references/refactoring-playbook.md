@@ -140,7 +140,7 @@ function badCrypto(pwd) {                    // hash caseiro
 from werkzeug.security import generate_password_hash, check_password_hash
 
 def criar(self, nome, email, senha, tipo="cliente"):
-    senha_hash = generate_password_hash(senha)          # PBKDF2 com salt por usuário
+    senha_hash = generate_password_hash(senha)          # scrypt com salt por usuário
     self._db.execute("INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, ?)",
                      (nome, email, senha_hash, tipo))
 

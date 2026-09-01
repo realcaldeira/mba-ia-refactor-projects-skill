@@ -160,7 +160,7 @@ CRITICAL: 7 | HIGH: 10 | MEDIUM: 9 | LOW: 6
   a string em SQL (`AND senha = '...'`).
 - **Impact:** Um vazamento do arquivo `loja.db` expõe as senhas reais dos usuários — que
   tipicamente são reusadas em outros serviços.
-- **Recommendation:** `generate_password_hash`/`check_password_hash` (PBKDF2 com salt) e comparação
+- **Recommendation:** `generate_password_hash`/`check_password_hash` (scrypt com salt) e comparação
   em tempo constante (playbook: `R4`).
 
 ### #9 [HIGH] Missing Authentication / Authorization

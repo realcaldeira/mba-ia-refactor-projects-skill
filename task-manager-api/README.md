@@ -29,7 +29,7 @@ src/
 │   └── logging_config.py     logging estruturado
 ├── database.py               instância do ORM
 ├── models/                   dados + regra de negócio + consultas da entidade
-│   ├── user.py               (hash PBKDF2, papel, e-mail único)
+│   ├── user.py               (hash scrypt, papel, e-mail único)
 │   ├── task.py               (is_overdue como única definição de atraso; agregações em SQL)
 │   └── category.py
 ├── controllers/              orquestração por caso de uso, sem ORM direto
