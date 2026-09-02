@@ -380,7 +380,9 @@ CRITICAL: 7 | HIGH: 10 | MEDIUM: 9 | LOW: 6
 - **File:** `models.py:12-21, 31-40, 79-86, 95-102, 304-313`
 - **Evidence:**
   ```python
-  result.append({"id": row["id"], "nome": row["nome"], "descricao": row["descricao"], ...})
+  result.append({
+      "id": row["id"],
+      "nome": row["nome"],          # ... e mais seis campos, reescritos em cinco lugares
   ```
 - **Description:** O mesmo mapeamento campo a campo de produto aparece três vezes e o de usuário duas
   vezes, sempre reescrito manualmente.
@@ -519,27 +521,27 @@ de desenvolvimento do Werkzeug, que o próprio Flask desaconselha como runtime d
 
 ## Endpoints inventariados (contrato da Fase 3)
 
-| # | Método | Rota | Status baseline |
-|---|---|---|---|
-| 1 | GET | `/` | 200 |
-| 2 | GET | `/health` | 200 |
-| 3 | GET | `/produtos` | 200 |
-| 4 | GET | `/produtos/busca` | 200 |
-| 5 | GET | `/produtos/<id>` | 200 / 404 |
-| 6 | POST | `/produtos` | 201 / 400 |
-| 7 | PUT | `/produtos/<id>` | 200 / 404 |
-| 8 | DELETE | `/produtos/<id>` | 200 / 404 |
-| 9 | GET | `/usuarios` | 200 |
-| 10 | GET | `/usuarios/<id>` | 200 / 404 |
-| 11 | POST | `/usuarios` | 201 / 400 |
-| 12 | POST | `/login` | 200 / 401 |
-| 13 | POST | `/pedidos` | 201 / 400 |
-| 14 | GET | `/pedidos` | 200 |
-| 15 | GET | `/pedidos/usuario/<id>` | 200 |
-| 16 | PUT | `/pedidos/<id>/status` | 200 / 400 |
-| 17 | GET | `/relatorios/vendas` | 200 |
-| 18 | POST | `/admin/reset-db` | 200 |
-| 19 | POST | `/admin/query` | 200 / 400 / 500 |
+| # | Método | Rota | Status baseline | Fase 3 |
+|---|---|---|---|---|
+| 1 | GET | `/` | 200 | preservado |
+| 2 | GET | `/health` | 200 | preservado |
+| 3 | GET | `/produtos` | 200 | preservado |
+| 4 | GET | `/produtos/busca` | 200 | preservado |
+| 5 | GET | `/produtos/<id>` | 200 / 404 | preservado |
+| 6 | POST | `/produtos` | 201 / 400 | preservado |
+| 7 | PUT | `/produtos/<id>` | 200 / 404 | preservado |
+| 8 | DELETE | `/produtos/<id>` | 200 / 404 | preservado |
+| 9 | GET | `/usuarios` | 200 | preservado |
+| 10 | GET | `/usuarios/<id>` | 200 / 404 | preservado |
+| 11 | POST | `/usuarios` | 201 / 400 | preservado |
+| 12 | POST | `/login` | 200 / 401 | preservado |
+| 13 | POST | `/pedidos` | 201 / 400 | preservado |
+| 14 | GET | `/pedidos` | 200 | preservado |
+| 15 | GET | `/pedidos/usuario/<id>` | 200 | preservado |
+| 16 | PUT | `/pedidos/<id>/status` | 200 / 400 | preservado |
+| 17 | GET | `/relatorios/vendas` | 200 | preservado |
+| 18 | POST | `/admin/reset-db` | 200 | **removido** (achado #4) |
+| 19 | POST | `/admin/query` | 200 / 400 / 500 | **removido** (achado #3) |
 
 ## Plano de refatoração proposto
 

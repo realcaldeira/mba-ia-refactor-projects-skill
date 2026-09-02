@@ -140,9 +140,8 @@ CRITICAL: 5 | HIGH: 8 | MEDIUM: 7 | LOW: 6
 - **Evidence:**
   ```javascript
   function badCrypto(pwd) {
-      for(let i = 0; i < 10000; i++) hash += Buffer.from(pwd).toString('base64').substring(0, 2);
-      return hash.substring(0, 10);
-  }
+      for(let i = 0; i < 10000; i++) {
+          hash += Buffer.from(pwd).toString('base64').substring(0, 2);
   ```
 - **Description:** Hash caseiro que repete 10.000 vezes os dois primeiros caracteres do base64 da
   senha e trunca em 10 caracteres — é reversível por inspeção e colide para qualquer senha com o
@@ -210,7 +209,7 @@ CRITICAL: 5 | HIGH: 8 | MEDIUM: 7 | LOW: 6
   ```javascript
   let globalCache = {};
   let totalRevenue = 0;
-  function logAndCache(key, data) { globalCache[key] = data; }
+  function logAndCache(key, data) {        // corpo faz globalCache[key] = data
   ```
 - **Description:** Cache global sem limite de tamanho nem TTL, alimentado a cada checkout com a chave
   `last_checkout_${userId}`, e um acumulador `totalRevenue` exportado por valor (nunca atualizado, e

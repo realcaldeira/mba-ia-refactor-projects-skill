@@ -122,7 +122,7 @@ CRITICAL: 3 | HIGH: 8 | MEDIUM: 9 | LOW: 6
 
 ### #5 [HIGH] Missing Authentication / Authorization
 
-- **File:** `app.py:18-20`, todas as rotas de `routes/`
+- **File:** `routes/user_routes.py:134-135`, `app.py:18-20`, e todas as demais rotas de `routes/`
 - **Evidence:**
   ```python
   @user_bp.route('/users/<int:user_id>', methods=['DELETE'])
@@ -356,7 +356,8 @@ CRITICAL: 3 | HIGH: 8 | MEDIUM: 9 | LOW: 6
 
 ### #19 [MEDIUM] Dead Code
 
-- **File:** `services/notification_service.py:1-48`, `utils/helpers.py:1-116`
+- **File:** `services/notification_service.py:1-48`, `utils/helpers.py:1-116`,
+  `routes/report_routes.py:7`
 - **Evidence:**
   ```python
   from utils.helpers import format_date, calculate_percentage   # report_routes.py:7 — nunca chamados

@@ -12,7 +12,11 @@ O relatório é impresso no terminal e, quando o usuário pedir, salvo em
   aparece muitas vezes no mesmo arquivo, use o intervalo e liste as ocorrências no `Description`
   (`ocorrências: 28, 68, 92, 174`).
 - **`Evidence:`** é o trecho literal do código, em bloco, no máximo 3 linhas. É o que impede
-  achado inventado.
+  achado inventado. Só três marcas podem alterar o texto original, e todas têm de ficar visíveis:
+  `...` para elidir o meio de uma linha longa ou de um bloco; um comentário ao final da linha
+  (`# ...` / `// ...`) para anotar qual responsabilidade ela representa; e `<redacted>` no lugar de
+  um segredo — credencial real **nunca** é copiada para o relatório. Fora essas marcas, cada linha
+  é literal e tem de existir em um dos arquivos citados em `File:`.
 - **`Description`** diz *o que* está errado; **`Impact`** diz *o que quebra na prática* (seja
   concreto: "um `POST /login` com `' OR '1'='1` autentica como admin"); **`Recommendation`** diz
   *qual transformação aplicar*, citando o padrão do playbook (`R2`).
