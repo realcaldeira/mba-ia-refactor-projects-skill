@@ -209,7 +209,7 @@ ganha valor, ao classificar a arquitetura atual antes de julgá-la.
 | | `GET /pedidos` com 401 queries (100 pedidos) | 1 query com `LEFT JOIN` |
 | | relatório com 5 varreduras | 1 varredura agregada |
 | | 16 blocos `try/except` repetidos | 1 error handler central |
-| | conexão global com `check_same_thread=False` | factory injetada pelo composition root |
+| | conexão global com `check_same_thread=False` | uma conexão por thread, injetada pelo composition root |
 | **Projeto 2** | 1 God Class de 141 linhas | 20 módulos em 7 camadas |
 | | 5 níveis de callback com contador manual | `async/await`, sem callback aninhado |
 | | relatório com 10.051 queries (50 cursos) | 1 query com `JOIN` |
@@ -348,9 +348,13 @@ Documentadas no relatório do respectivo projeto ou abaixo:
    `401` quando ela não confere. Matrícula duplicada no mesmo curso responde `409`.
 3. **Projetos 1 e 3** — campos sensíveis saíram do corpo das respostas (`password`, `secret_key`,
    `debug`, `db_path`). Os status permaneceram idênticos.
-4. **Projeto 3** — `POST /users` ignora `role` enviado pelo cliente e sempre cria `user` (bloqueia
+4. **Projeto 1** — os corpos de erro passaram a trazer sempre `sucesso: false`. O original só o
+   incluía em parte dos erros (`GET /produtos/<id>` inexistente sim, `GET /usuarios/<id>` e as
+   validações de `POST` não). A padronização veio do error handler central; os status não mudaram
+   e o campo `erro` continua no mesmo lugar.
+5. **Projeto 3** — `POST /users` ignora `role` enviado pelo cliente e sempre cria `user` (bloqueia
    auto-promoção a admin). Papel só muda com `AUTH_REQUIRED=true` e token de admin.
-5. **Os três** — autenticação obrigatória só com `AUTH_REQUIRED=true`. O default preserva o
+6. **Os três** — autenticação obrigatória só com `AUTH_REQUIRED=true`. O default preserva o
    contrato legado (rotas públicas + token emitido no login).
 
 ---

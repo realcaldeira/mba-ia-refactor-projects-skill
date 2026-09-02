@@ -6,7 +6,7 @@ def calcular_desconto(faturamento):
     for piso, taxa in FAIXAS_DESCONTO:
         if faturamento > piso:
             return faturamento * taxa
-    return 0.0
+    return 0
 
 class RelatorioModel(BaseModel):
 

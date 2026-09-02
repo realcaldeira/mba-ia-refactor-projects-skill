@@ -573,6 +573,12 @@ Phase 2 complete. Proceed with refactoring (Phase 3)? [y/n]
 
 Confirmado. Estrutura MVC em `src/` (config, models, controllers, views, middlewares, services, composition root). Endpoints `POST /admin/query` e `POST /admin/reset-db` removidos (inseguros por natureza).
 
+O achado #15 (Global Mutable State) foi resolvido em duas etapas: a conexão saiu do escopo de
+módulo para o composition root e, depois, passou a ser **uma por thread** (`ConexaoPorThread`),
+eliminando o `check_same_thread=False`. Medido com 40 criações de pedido simultâneas: antes,
+20 requisições falhavam e o estoque divergia dos pedidos gravados; depois, 40/40 gravam e o
+estoque fecha exatamente.
+
 Findings resolved: 31/32  (CRITICAL 7/7 | HIGH 9/10 | MEDIUM 9/9 | LOW 6/6)
 
 Aceito conscientemente: **#9 HIGH Missing Authentication** — middleware existe, mas `AUTH_REQUIRED=false` por padrão para não quebrar o contrato HTTP legado.

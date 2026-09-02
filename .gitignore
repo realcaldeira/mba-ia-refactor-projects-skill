@@ -8,7 +8,3 @@ venv/
 
 *.db
 instance/
-
-!.claude/
-!**/.claude/
-!**/.claude/**

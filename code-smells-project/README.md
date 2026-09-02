@@ -23,7 +23,7 @@ src/
 │   ├── settings.py          configuração por variável de ambiente
 │   └── logging_config.py    logging estruturado
 ├── database/
-│   ├── connection.py        factory de conexão (sem estado global)
+│   ├── connection.py        uma conexão por thread (sem estado global compartilhado)
 │   └── schema.py            DDL com constraints/índices + carga inicial
 ├── models/                  dados + regra de negócio, queries parametrizadas
 │   ├── base_model.py

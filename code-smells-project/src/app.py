@@ -7,7 +7,7 @@ from src.controllers.pedido_controller import PedidoController
 from src.controllers.produto_controller import ProdutoController
 from src.controllers.relatorio_controller import RelatorioController
 from src.controllers.usuario_controller import UsuarioController
-from src.database.connection import criar_conexao
+from src.database.connection import ConexaoPorThread
 from src.database.schema import inicializar
 from src.middlewares.error_handler import registrar_error_handler
 from src.models.pedido_model import PedidoModel
@@ -24,7 +24,7 @@ def create_app(conexao=None, config=settings, notificador=None):
     app.config['SECRET_KEY'] = config.SECRET_KEY
     app.config['DEBUG'] = config.DEBUG
     CORS(app, origins=config.CORS_ORIGINS)
-    db = conexao or inicializar(criar_conexao(config.DB_PATH))
+    db = conexao or inicializar(ConexaoPorThread(config.DB_PATH))
     produtos = ProdutoModel(db)
     usuarios = UsuarioModel(db)
     pedidos = PedidoModel(db)
